@@ -1,1 +1,2 @@
-# Artificial-Food-Colorants-in-Processed-Foods-A-Machine-Learning-Approach-
+# Artificial Food Colorants in Processed Foods: A Machine Learning Study on Perception and Health Risks
+ This project presents an innovative AI-driven system for detecting artificial food colorants in processed foods within Bangladeshi markets, aiming to assess their potential health risks. By leveraging a multimodal machine learning approach, the system integrates advanced image processing and natural language processing techniques to analyze visual and textual data from food packaging.
