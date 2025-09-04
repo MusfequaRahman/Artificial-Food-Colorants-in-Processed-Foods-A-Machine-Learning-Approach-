@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Food Products Analysis Grid</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 15px;
+            background-color: #f8f9fa;
+            line-height: 1.3;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        
+        .header h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+        
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-item {
+            text-align: center;
+            padding: 10px 20px;
+            border-radius: 8px;
+        }
+        
+        .total-products {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+        
+        .high-risk-stat {
+            background: #ffebee;
+            color: #c62828;
+        }
+        
+        .low-risk-stat {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 12px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .product-card {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            padding: 12px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+            transition: all 0.2s ease;
+            position: relative;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            border-color: #2196f3;
+        }
+        
+        .product-name {
+            font-weight: bold;
+            font-size: 13px;
+            margin-bottom: 8px;
+            color: #333;
+            min-height: 35px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        
+        .category {
+            padding: 3px 8px;
+            border-radius: 10px;
+            font-size: 11px;
+            margin-bottom: 8px;
+            display: inline-block;
+            font-weight: 500;
+        }
+        
+        .category.chips { background: #fff3e0; color: #f57c00; }
+        .category.biscuit { background: #fce4ec; color: #c2185b; }
+        .category.drink { background: #e1f5fe; color: #0277bd; }
+        .category.chocolate { background: #efebe9; color: #5d4037; }
+        .category.dessert { background: #f3e5f5; color: #7b1fa2; }
+        .category.dairy { background: #e8f5e8; color: #388e3c; }
+        .category.condiment { background: #fff8e1; color: #f9a825; }
+        .category.snacks { background: #ffebee; color: #e53935; }
+        .category.instant-food { background: #e0f2f1; color: #00695c; }
+        .category.spread { background: #fafafa; color: #424242; }
+        
+        .colorant-info {
+            font-size: 10px;
+            margin: 6px 0;
+            padding: 4px 6px;
+            border-radius: 4px;
+            background: #fff3e0;
+            color: #e65100;
+            min-height: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .colorant-none {
+            background: #e8f5e8;
+            color: #2e7d32;
+        }
+        
+        .risk-level {
+            font-weight: bold;
+            padding: 6px 10px;
+            border-radius: 12px;
+            font-size: 11px;
+            margin-top: 8px;
+            text-transform: uppercase;
+        }
+        
+        .high-risk {
+            background: #ffcdd2;
+            color: #c62828;
+            border: 1px solid #ef5350;
+        }
+        
+        .low-risk {
+            background: #c8e6c9;
+            color: #2e7d32;
+            border: 1px solid #66bb6a;
+        }
+        
+        .ingredients {
+            font-size: 9px;
+            color: #666;
+            margin: 6px 0;
+            max-height: 30px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            line-height: 1.2;
+        }
+        
+        .image-placeholder {
+            width: 50px;
+            height: 50px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 6px;
+            margin: 0 auto 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 18px;
+        }
+        
+        .risk-indicator {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+        
+        .risk-indicator.high { background: #f44336; }
+        .risk-indicator.low { background: #4caf50; }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>Food Products Colorant Analysis</h1>
+        <div class="stats">
+            <div class="stat-item total-products">
+                <div style="font-size: 20px; font-weight: bold;">66</div>
+                <div style="font-size: 12px;">Total Products</div>
+            </div>
+            <div class="stat-item high-risk-stat">
+                <div style="font-size: 20px; font-weight: bold;">43</div>
+                <div style="font-size: 12px;">High Risk</div>
+            </div>
+            <div class="stat-item low-risk-stat">
+                <div style="font-size: 20px; font-weight: bold;">23</div>
+                <div style="font-size: 12px;">Low Risk</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid-container">
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥔</div>
+            <div class="product-name">Pran Potato Chips</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Potatoes, palm oil, salt</div>
+            <div class="colorant-info">Allura Red (E129)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥔</div>
+            <div class="product-name">Mr. Twist Chips</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Potatoes, sunflower oil, salt</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Olympic Biscuit</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, vegetable oil</div>
+            <div class="colorant-info">Tartrazine (E102)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥭</div>
+            <div class="product-name">Fruto Mango Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, mango pulp, sugar</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍫</div>
+            <div class="product-name">Cadbury Dairy Milk</div>
+            <div class="category chocolate">Chocolate</div>
+            <div class="ingredients">Cocoa, milk, sugar</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Tiger Crunch Biscuits</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Maida, sugar, palm oil</div>
+            <div class="colorant-info">Brilliant Blue (E133)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍋</div>
+            <div class="product-name">Clemon Lemon Juice</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, lemon juice, sugar</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍦</div>
+            <div class="product-name">Kwality Wall's Ice Cream</div>
+            <div class="category dessert">Dessert</div>
+            <div class="ingredients">Milk, sugar, cream</div>
+            <div class="colorant-info">Ponceau 4R (E124)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍊</div>
+            <div class="product-name">Sunlite Orange Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, orange flavor, sugar</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Energy Plus Biscuit</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, vegetable oil</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥔</div>
+            <div class="product-name">Lays Classic Salted</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Potatoes, vegetable oil, salt</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥤</div>
+            <div class="product-name">Fanta Orange Soda</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Carbonated water, sugar, orange flavor</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥛</div>
+            <div class="product-name">Danish Condensed Milk</div>
+            <div class="category dairy">Dairy</div>
+            <div class="ingredients">Milk, sugar</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥤</div>
+            <div class="product-name">Horlicks Malt Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Milk solids, barley malt, sugar</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🌽</div>
+            <div class="product-name">Kurkure Masala Munch</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Corn, vegetable oil, salt</div>
+            <div class="colorant-info">Allura Red (E129)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥛</div>
+            <div class="product-name">Milky Mist Yogurt</div>
+            <div class="category dairy">Dairy</div>
+            <div class="ingredients">Milk, sugar</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Good Day Butter Cookies</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, butter</div>
+            <div class="colorant-info">Tartrazine (E102)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥤</div>
+            <div class="product-name">Pepsi Cola</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Carbonated water, sugar, phosphoric acid</div>
+            <div class="colorant-info">Caramel (E150d)</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍫</div>
+            <div class="product-name">Aarong Chocolate Milk</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Milk, sugar, cocoa</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍯</div>
+            <div class="product-name">Ruchi Mixed Fruit Jam</div>
+            <div class="category condiment">Condiment</div>
+            <div class="ingredients">Fruit pulp, sugar</div>
+            <div class="colorant-info">Ponceau 4R (E124)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥔</div>
+            <div class="product-name">Pran Tomato Chips</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Potatoes, palm oil, spices</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🧀</div>
+            <div class="product-name">Cheetos Cheese Flavor</div>
+            <div class="category chips">Chips</div>
+            <div class="ingredients">Corn, vegetable oil, cheese powder</div>
+            <div class="colorant-info">Allura Red (E129)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥜</div>
+            <div class="product-name">Aloz Bhujia</div>
+            <div class="category snacks">Snacks</div>
+            <div class="ingredients">Gram flour, vegetable oil, salt</div>
+            <div class="colorant-info">Tartrazine (E102)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍜</div>
+            <div class="product-name">Noodles Masala</div>
+            <div class="category instant-food">Instant Food</div>
+            <div class="ingredients">Wheat flour, palm oil, spices</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Glucose Biscuits</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, vegetable oil</div>
+            <div class="colorant-info">Tartrazine (E102)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Sunlite Cream Crackers</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, yeast, salt</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥥</div>
+            <div class="product-name">Pran Coconut Biscuits</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, coconut</div>
+            <div class="colorant-info">Brilliant Blue (E133)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Unibic Chocolate Cookies</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, cocoa</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍪</div>
+            <div class="product-name">Olympic Hi-Cal Biscuits</div>
+            <div class="category biscuit">Biscuit</div>
+            <div class="ingredients">Wheat flour, sugar, milk powder</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥭</div>
+            <div class="product-name">Slice Mango Juice</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, mango concentrate, sugar</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">⚡</div>
+            <div class="product-name">Speed Energy Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, sugar, caffeine</div>
+            <div class="colorant-info">Tartrazine (E102)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥤</div>
+            <div class="product-name">Mojo Cola</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Carbonated water, sugar</div>
+            <div class="colorant-info">Caramel (E150d)</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍇</div>
+            <div class="product-name">Pran Lychee Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, lychee pulp, sugar</div>
+            <div class="colorant-info">Ponceau 4R (E124)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥭</div>
+            <div class="product-name">Frooti Mango Drink</div>
+            <div class="category drink">Drink</div>
+            <div class="ingredients">Water, mango pulp, sugar</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍫</div>
+            <div class="product-name">KitKat Chocolate</div>
+            <div class="category chocolate">Chocolate</div>
+            <div class="ingredients">Cocoa, milk, sugar</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥜</div>
+            <div class="product-name">Snickers Bar</div>
+            <div class="category chocolate">Chocolate</div>
+            <div class="ingredients">Peanuts, caramel, milk, nougat</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍫</div>
+            <div class="product-name">Kandos Dark Chocolate</div>
+            <div class="category chocolate">Chocolate</div>
+            <div class="ingredients">Cocoa, sugar, cocoa butter</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍫</div>
+            <div class="product-name">Dairy Milk Silk</div>
+            <div class="category chocolate">Chocolate</div>
+            <div class="ingredients">Cocoa, milk, sugar</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🌰</div>
+            <div class="product-name">Nutella Hazelnut Spread</div>
+            <div class="category spread">Spread</div>
+            <div class="ingredients">Hazelnuts, cocoa, sugar, palm oil</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍦</div>
+            <div class="product-name">Igloo Ice Cream</div>
+            <div class="category dessert">Dessert</div>
+            <div class="ingredients">Milk, sugar, cream</div>
+            <div class="colorant-info">Ponceau 4R (E124)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥛</div>
+            <div class="product-name">Polar Yogurt</div>
+            <div class="category dairy">Dairy</div>
+            <div class="ingredients">Milk, sugar, live cultures</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🥛</div>
+            <div class="product-name">Aarong Misti Doi</div>
+            <div class="category dairy">Dairy</div>
+            <div class="ingredients">Milk, sugar, culture</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🍰</div>
+            <div class="product-name">Marks Milk Cake</div>
+            <div class="category dessert">Dessert</div>
+            <div class="ingredients">Milk, sugar</div>
+            <div class="colorant-info">Carmoisine (E122)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator low"></div>
+            <div class="image-placeholder">🍡</div>
+            <div class="product-name">Sweet Bengal Roshogolla</div>
+            <div class="category dessert">Dessert</div>
+            <div class="ingredients">Chhena, sugar, rose water</div>
+            <div class="colorant-info colorant-none">None</div>
+            <div class="risk-level low-risk">Low Risk</div>
+        </div>
+        
+        <div class="product-card">
+            <div class="risk-indicator high"></div>
+            <div class="image-placeholder">🥜</div>
+            <div class="product-name">Pran Chanachur</div>
+            <div class="category snacks">Snacks</div>
+            <div class="ingredients">Fried lentils, peanuts, spices</div>
+            <div class="colorant-info">Sunset Yellow (E110)</div>
+            <div class="risk-level high-risk">High Risk</div>
+        </div>
+        
+        <div class="
